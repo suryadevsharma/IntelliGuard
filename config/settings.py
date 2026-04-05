@@ -17,6 +17,18 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Optional
 
+
+def _default_database_url() -> str:
+    """SQLite in CWD when writable; otherwise /tmp (Streamlit Cloud, read-only mounts)."""
+
+    try:
+        test = Path.cwd() / ".intelliguard_write_test"
+        test.write_text("ok", encoding="utf-8")
+        test.unlink(missing_ok=True)
+        return "sqlite:///./pyrosense.db"
+    except OSError:
+        return "sqlite:////tmp/pyrosense.db"
+
 from pydantic import AliasChoices, Field, HttpUrl, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -45,7 +57,7 @@ class Settings(BaseSettings):
     )
 
     # Database
-    database_url: str = Field(default="sqlite:///./pyrosense.db", alias="DATABASE_URL")
+    database_url: str = Field(default_factory=_default_database_url, alias="DATABASE_URL")
 
     # LLM
     llm_provider: Literal["groq", "ollama"] = Field(default="groq", alias="LLM_PROVIDER")

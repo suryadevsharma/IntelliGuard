@@ -14,6 +14,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 from config.settings import get_settings
+from database.models import Base
 from utils.logger import logger
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False)
@@ -40,6 +41,10 @@ def init_engine() -> Engine:
     try:
         _ENGINE = create_engine(url, echo=False, future=True, connect_args=connect_args)
         SessionLocal.configure(bind=_ENGINE)
+        try:
+            Base.metadata.create_all(bind=_ENGINE)
+        except Exception as schema_err:
+            logger.warning(f"Database schema create_all: {schema_err}")
         return _ENGINE
     except Exception as e:
         logger.error(f"Failed to initialize database engine: {e}")

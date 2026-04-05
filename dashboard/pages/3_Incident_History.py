@@ -16,6 +16,8 @@ _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from database import crud
 from database.models import AlertLog, Detection
 from database.session import SessionLocal
@@ -76,21 +78,30 @@ def main() -> None:
     elif cls.lower() == "smoke":
         class_filter = "smoke"
 
-    with SessionLocal() as db:
-        rows = crud.list_detections(
-            db,
-            offset=0,
-            limit=1000,
-            class_name=class_filter,
-            min_conf=min_conf if min_conf > 0 else None,
-            start_ts=start_ts,
-            end_ts=end_ts,
-        )
-        if zone.strip():
-            z = zone.strip().lower()
-            rows = [r for r in rows if z in (r.source or "").lower()]
+    try:
+        with SessionLocal() as db:
+            rows = crud.list_detections(
+                db,
+                offset=0,
+                limit=1000,
+                class_name=class_filter,
+                min_conf=min_conf if min_conf > 0 else None,
+                start_ts=start_ts,
+                end_ts=end_ts,
+            )
+            if zone.strip():
+                z = zone.strip().lower()
+                rows = [r for r in rows if z in (r.source or "").lower()]
 
-        alerts = db.query(AlertLog).order_by(AlertLog.sent_at.desc()).limit(5000).all()
+            alerts = db.query(AlertLog).order_by(AlertLog.sent_at.desc()).limit(5000).all()
+    except SQLAlchemyError as e:
+        st.error(
+            "Database unavailable (e.g. read-only disk or missing tables). "
+            "On Streamlit Cloud, remove DATABASE_URL from secrets to use /tmp, or set "
+            "`DATABASE_URL=sqlite:////tmp/pyrosense.db`."
+        )
+        st.caption(str(e))
+        return
 
     if not rows:
         st.warning("No incidents match the current filters.")
