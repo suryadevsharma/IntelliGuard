@@ -104,9 +104,11 @@ source .venv/bin/activate
 Install:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-full.txt
 pip install -r requirements-dev.txt
 ```
+
+(Streamlit Community Cloud uses the slimmer root `requirements.txt` automatically; local/Docker use `requirements-full.txt`.)
 
 Configure:
 
