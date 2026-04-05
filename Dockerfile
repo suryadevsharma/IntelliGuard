@@ -16,7 +16,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=builder /install /usr/local
 COPY . /app
 
-EXPOSE 8501 8000
+EXPOSE 7860 8000
 
 ENTRYPOINT ["python", "-m", "supervisor", "-c", "/app/supervisord.conf"]
 

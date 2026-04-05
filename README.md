@@ -1,3 +1,11 @@
+---
+title: IntelliGuard AI
+emoji: ??
+colorFrom: red
+colorTo: orange
+sdk: docker
+pinned: false
+---
 # 🔥 PyroSense AI
 
 **Real-time Fire & Smoke Detection with Explainable Deep Learning**
