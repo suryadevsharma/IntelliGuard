@@ -18,5 +18,5 @@ COPY . /app
 
 EXPOSE 7860 8000
 
-ENTRYPOINT ["python", "-m", "supervisor", "-c", "/app/supervisord.conf"]
+ENTRYPOINT ["supervisord", "-c", "/app/supervisord.conf"]
 
