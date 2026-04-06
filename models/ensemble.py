@@ -64,8 +64,17 @@ def compute_risk_score(
     growth = float(np.clip(growth_rate, 0.0, 1.0))
     smoke = float(np.clip(smoke_presence, 0.0, 1.0))
 
-    raw = conf * 0.4 + area * 0.3 + growth * 0.2 + smoke * 0.1
+    # A fire covering > 20% of the frame is incredibly massive; 
+    # we apply a multiplier so area has a much stronger impact on the final score.
+    area_factor = float(np.clip(area * 3.5, 0.0, 1.0))
+
+    raw = conf * 0.40 + area_factor * 0.40 + growth * 0.10 + smoke * 0.10
     score = float(np.clip(raw * 100.0, 0.0, 100.0))
+
+    # Non-linear boost for immediate threats (high confidence + large area)
+    if conf > 0.65 and area > 0.05:
+        score = float(np.clip(score * 1.5, 0.0, 100.0))
+
     return RiskScore(score=score, severity=severity_from_risk(score))
 
 

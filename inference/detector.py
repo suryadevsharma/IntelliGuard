@@ -156,8 +156,14 @@ class InferenceEngine:
 
         ens = weighted_score(yolo_conf, clf_conf)
 
-        bbox = det.boxes[idx]
-        area_ratio = float(np.clip((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / max(1.0, det.frame.shape[0] * det.frame.shape[1]), 0.0, 1.0))
+        # Compute spatial extent (union bounding box) of all detections for risk
+        x1 = min([float(b[0]) for b in det.boxes])
+        y1 = min([float(b[1]) for b in det.boxes])
+        x2 = max([float(b[2]) for b in det.boxes])
+        y2 = max([float(b[3]) for b in det.boxes])
+        union_bbox = (x1, y1, x2, y2)
+
+        area_ratio = float(np.clip((x2 - x1) * (y2 - y1) / max(1.0, det.frame.shape[0] * det.frame.shape[1]), 0.0, 1.0))
         growth = 0.0
         if self._prev_area_ratio is not None:
             growth = float(np.clip(area_ratio - self._prev_area_ratio, 0.0, 1.0))
@@ -166,7 +172,7 @@ class InferenceEngine:
 
         risk = compute_risk_score(
             confidence=float(np.clip(ens, 0.0, 1.0)),
-            bbox_xyxy=bbox,
+            bbox_xyxy=union_bbox,
             frame_shape=det.frame.shape,
             growth_rate=growth,
             smoke_presence=smoke_presence,
