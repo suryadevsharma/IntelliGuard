@@ -131,7 +131,10 @@ def main() -> None:
                     risk_severity="HIGH",
                     llm_summary="Test message from PyroSense AI.",
                 )
-                st.success("Sent.") if r.ok else st.error(f"Failed: {r.error}")
+                if r.ok:
+                    st.success("Sent.")
+                else:
+                    st.error(f"Failed: {r.error}")
         st.markdown("</div>", unsafe_allow_html=True)
 
         # TELEGRAM
@@ -150,7 +153,10 @@ def main() -> None:
                     return await tga.send_message("PyroSense AI test message ✅")
 
                 res = asyncio.get_event_loop().run_until_complete(_send())
-                st.success("Sent.") if res.ok else st.error(f"Failed: {res.error}")
+                if res.ok:
+                    st.success("Sent.")
+                else:
+                    st.error(f"Failed: {res.error}")
         st.markdown("</div>", unsafe_allow_html=True)
 
         # WEBHOOK
@@ -172,7 +178,10 @@ def main() -> None:
                         return r.status_code, r.text[:200]
 
                 code, text = asyncio.get_event_loop().run_until_complete(_go())
-                st.success(f"Webhook responded: {code}") if 200 <= code < 300 else st.error(f"{code}: {text}")
+                if 200 <= code < 300:
+                    st.success(f"Webhook responded: {code}")
+                else:
+                    st.error(f"{code}: {text}")
         st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Save alert overrides"):
