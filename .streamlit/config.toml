@@ -3,6 +3,7 @@ maxUploadSize = 1024
 maxMessageSize = 1024
 enableXsrfProtection = false
 enableCORS = false
+enableWebsocketCompression = false
 
 [theme]
 base = "light"
