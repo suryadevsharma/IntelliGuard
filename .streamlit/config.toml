@@ -1,7 +1,8 @@
 [server]
 maxUploadSize = 1024
 maxMessageSize = 1024
-enableXsrfProtection = true
+enableXsrfProtection = false
+enableCORS = false
 
 [theme]
 base = "light"
